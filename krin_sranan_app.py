@@ -5,7 +5,7 @@ from Krin_sranan_core_ import KrinSrananEngine
 # Pagina-instellingen voor mobiel (Nationale Surinaamse look)
 st.set_page_config(page_title="KrinSranan App", page_icon="🇸🇷", layout="centered")
 
-# Stijl aanpassen naar Groen, Wit en Goud
+# Stijl aanpassen naar Groen, Wit en Goud (Gecorrigeerd zonder fouten)
 st.markdown("""
     <style>
     .main { background-color: #FFFFFF; }
@@ -14,7 +14,7 @@ st.markdown("""
     .stButton>button:hover { background-color: #FCD116; color: black; }
     .wallet-box { background-color: #FCD116; padding: 20px; border-radius: 10px; color: black; font-weight: bold; text-align: center; }
     </style>
-""", unsafe_with_html=True)
+""", unsafe_allow_html=True)
 
 st.title("🇸🇷 KrinSranan")
 st.caption("De Digitale Herstelmachine - Gecentraliseerd-vrij & Onomkoopbaar")
@@ -33,7 +33,7 @@ col1, col2 = st.columns(2)
 with col1:
     st.metric(label="🎯 Mijn Score", value=f"{engine.score} / 1000")
 with col2:
-    st.markdown(f"<div class='wallet-box'>💰 MIJN WALLET<br><span style='font-size:24px;'>SRD {engine.wallet_srd:,.2f}</span></div>", unsafe_with_html=True)
+    st.markdown(f"<div class='wallet-box'>💰 MIJN WALLET<br><span style='font-size:24px;'>SRD {engine.wallet_srd:,.2f}</span></div>", unsafe_allow_html=True)
 
 st.divider()
 
@@ -48,7 +48,7 @@ st.subheader("🟢 Acties & Inkomen")
 tab1, tab2, tab3, tab4 = st.tabs(["♻️ Milieu", "🛒 Markt", "⚖️ Volksjury", "🛡️ Klokkenluider"])
 
 with tab1:
-    st.write(f"Verdien direct SRD door je resort schoon te houden.")
+    st.write("Verdien direct SRD door je resort schoon te houden.")
     kilo = st.number_input("Aantal kilo ingeleverd plastic/vuil:", min_value=0.0, step=0.5)
     if st.button("Bevestig Inlevering"):
         if kilo > 0:
