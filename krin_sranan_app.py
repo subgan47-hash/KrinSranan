@@ -13,6 +13,7 @@ st.markdown("""
     .stButton>button { background-color: #007A33; color: white; border-radius: 10px; width: 100%; }
     .stButton>button:hover { background-color: #FCD116; color: black; }
     .wallet-box { background-color: #FCD116; padding: 20px; border-radius: 10px; color: black; font-weight: bold; text-align: center; }
+    .admin-box { background-color: #F0F2F6; padding: 15px; border-radius: 10px; border: 1px dashed #007A33; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -23,6 +24,14 @@ st.caption("De Digitale Herstelmachine - Gecentraliseerd-vrij & Onomkoopbaar")
 if "engine" not in st.session_state:
     st.session_state.engine = KrinSrananEngine(burger_did="did:krin:sr:paramaribo:12345")
 engine = st.session_state.engine
+
+# --- BEHEERDERS INTERFACE (DYNAMISCHE TARIEVEN) ---
+# Dit zijmenu simuleert de onafhankelijke commissie die inflatie-correcties doorvoert
+with st.sidebar:
+    st.markdown("<div class='admin-box'>⚙️ <b>Ressort Beheer</b><br><small>Alleen toegankelijk voor onafhankelijke wijkraden via cryptografische sleutel.</small></div>", unsafe_allow_html=True)
+    st.write("")
+    tarief_plastic = st.slider("Vergoeding per kilo plastic (SRD):", min_value=5.0, max_value=100.0, value=15.0, step=0.5)
+    st.info(f"Huidige economische instelling: 1 kg vuil = SRD {tarief_plastic:,.2f}")
 
 # --- SCHERM 1: HOOFDDASHBOARD ---
 st.subheader("👤 Mijn Anoniem Profiel")
@@ -45,17 +54,17 @@ ressort = st.selectbox("📍 Selecteer uw Bestuursressort:", [
 # Actie-knoppen
 st.subheader("🟢 Acties & Inkomen")
 
-# Vijf tabbladen, inclusief de nieuwe Handleiding
+# De 5 functionele tabbladen van KrinSranan
 tab1, tab2, tab3, tab4, tab5 = st.tabs(["♻️ Milieu", "🛒 Markt", "⚖️ Volksjury", "🛡️ Klokkenluider", "📖 Handleiding"])
 
 with tab1:
-    st.write("Verdien direct SRD door je resort schoon te houden.")
+    st.write(f"Verdien direct SRD door je resort schoon te houden. Actueel tarief in **{ressort}**: SRD {tarief_plastic:,.2f} per kilo.")
     kilo = st.number_input("Aantal kilo ingeleverd plastic/vuil:", min_value=0.0, step=0.5)
     if st.button("Bevestig Inlevering"):
         if kilo > 0:
-            vergoeding = kilo * 15.0  # SRD 15 per kilo
+            vergoeding = kilo * tarief_plastic  # Berekend op basis van de dynamische schuifbalk
             resultaat = engine.registreer_milieu_bijdrage(transactie_id=str(time.time()), kilo_plastic=kilo, srd_vergoeding=vergoeding)
-            st.success(f"Geweldig! Succesvol verwerkt in {ressort}. Score stijgt! Ontvangen: SRD {vergoeding}")
+            st.success(f"Geweldig! Succesvol verwerkt in {ressort}. Score stijgt! Ontvangen: SRD {vergoeding:,.2f}")
             time.sleep(1)
             st.rerun()
         else:
@@ -68,7 +77,7 @@ with tab2:
     if st.button("Betaal Nu Direct"):
         resultaat = engine.betaal_basisvoorziening(instantie_type=optie, bedrag_srd=bedrag)
         if resultaat["status"] == "GOEDGEKEURD":
-            st.success(f"Betaling goedgekeurd! Resterend saldo: SRD {resultaat['resterend_saldo']}")
+            st.success(f"Betaling goedgekeurd! Resterend saldo: SRD {resultaat['resterend_saldo']:,.2f}")
             time.sleep(1)
             st.rerun()
         else:
@@ -115,7 +124,7 @@ with tab5:
     KrinSranan helpt Suriname schoner te maken en bestrijdt direct armoede, onafhankelijk van politieke partijen. Iedereen begint met **500 punten**.
     
     #### ♻️ 1. Geld verdienen met vuilnis
-    Verzamel plastic of zwerfvuil en breng het naar het inleverstation van jouw ressort. Vul het aantal kilo in en klik op **Bevestig Inlevering**. Je ontvangt direct **SRD 15,- per kilo** in je Wallet en je score stijgt!
+    Verzamel plastic of zwerfvuil en breng het naar het inleverstation van jouw ressort. Vul het aantal kilo in en klik op **Bevestig Inlevering**. Je ontvangt direct **SRD 15,- per kilo** (of het actueel geldende ressort-tarief) in je Wallet en je score stijgt!
     
     #### 🛒 2. Rekeningen betalen
     Met het geld in je Wallet kun je direct en veilig je **EBS Stroom**, **SWM Water** of een **Basispakket** bij de supermarkt betalen via het tabblad 'Markt'.
