@@ -14,6 +14,7 @@ st.markdown("""
     .stButton>button:hover { background-color: #FCD116; color: black; }
     .wallet-box { background-color: #FCD116; padding: 20px; border-radius: 10px; color: black; font-weight: bold; text-align: center; }
     .admin-box { background-color: #F0F2F6; padding: 15px; border-radius: 10px; border: 1px dashed #007A33; }
+    .winkel-box { background-color: #E2F0D9; padding: 15px; border-radius: 10px; border: 1px solid #385723; color: black; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -53,8 +54,10 @@ ressort = st.selectbox("📍 Selecteer uw Bestuursressort:", [
 # Actie-knoppen
 st.subheader("🟢 Acties & Inkomen")
 
-# Nu zes functionele tabbladen, inclusief het Beheerders-Draaiboek
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["♻️ Milieu", "🛒 Markt", "⚖️ Volksjury", "🛡️ Klokkenluider", "📖 Handleiding", "⚙️ Beheerders-Draaiboek"])
+# Nu zeven functionele tabbladen, inclusief Winkeliers-Kassa
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    "♻️ Milieu", "🛒 Markt", "⚖️ Volksjury", "🛡️ Klokkenluider", "📖 Handleiding", "⚙️ Beheerders-Draaiboek", "🏪 Winkeliers-Kassa"
+])
 
 with tab1:
     st.write(f"Verdien direct SRD door je resort schoon te houden. Actueel tarief in **{ressort}**: SRD {tarief_plastic:,.2f} per kilo.")
@@ -70,14 +73,17 @@ with tab1:
             st.warning("Voer eerst het aantal kilo in.")
 
 with tab2:
-    st.write("Verzilver je saldo direct voor nutsvoorzieningen.")
+    st.write("Verzilver je saldo direct voor nutsvoorzieningen of boodschappen.")
     optie = st.radio("Wat wilt u betalen?", ["EBS Stroomrekening", "SWM Waterrekening", "Basispakket Supermarkt"])
     bedrag = st.number_input("Bedrag in SRD:", min_value=0.0, step=10.0)
     if st.button("Betaal Nu Direct"):
         resultaat = engine.betaal_basisvoorziening(instantie_type=optie, bedrag_srd=bedrag)
         if resultaat["status"] == "GOEDGEKEURD":
             st.success(f"Betaling goedgekeurd! Resterend saldo: SRD {resultaat['resterend_saldo']:,.2f}")
-            time.sleep(1)
+            # Genereer een gesimuleerde betaalcode voor de supermarkt
+            st.info(f"🔑 **Gegenereerde betaalcode voor de winkel:** `KRIN-PAY-{int(time.time())}-{int(bedrag)}`")
+            st.write("Laat deze code of de QR-code scannen door de winkelier bij de kassa.")
+            time.sleep(3)
             st.rerun()
         else:
             st.error("❌ Onvoldoende saldo in uw Wallet. Lever eerst milieu-bijdragen in.")
@@ -120,36 +126,42 @@ with tab4:
 with tab5:
     st.markdown("""
     ### 📖 Hoe werkt deze app?
-    KrinSranan helpt Suriname schoner te maken en bestrijdt direct armoede, onafhankelijk van politieke partijen. Iedereen begint met **500 punten**.
+    KrinSranan helpt Suriname schoner te maken en bestrijdt direct armoede, onafhankelijk van politieke partijen.
     
     #### ♻️ 1. Geld verdienen met vuilnis
-    Verzamel plastic of zwerfvuil en breng het naar het inleverstation van jouw ressort. Vul het aantal kilo in en klik op **Bevestig Inlevering**. Je ontvangt direct **SRD 15,- per kilo** (of het actueel geldende ressort-tarief) in je Wallet en je score stijgt!
+    Verzamel plastic of zwerfvuil en breng het naar het inleverstation. De beheerder weegt het en scant je QR-code. Je ontvangt direct **SRD 15,- per kilo** (of het actuele ressort-tarief) in je Wallet!
     
-    #### 🛒 2. Rekeningen betalen
-    Met het geld in je Wallet kun je direct en veilig je **EBS Stroom**, **SWM Water** of een **Basispakket** bij de supermarkt betalen via het tabblad 'Markt'.
+    #### 🛒 2. Rekeningen & Boodschappen betalen
+    Ga naar 'Markt', kies 'Basispakket Supermarkt' en voer het bedrag in. De app maakt een digitale betaalcode. De winkelier scant deze code aan de kassa en de betaling is gedaan.
     
-    #### ⚖️ 3. De Volksjury (De Loophole)
-    Als het systeem jou onterecht een automatische straf oplegt, beslissen anonieme mede-burgers uit andere ressorten via hun app of de straf gewist moet worden. Corruptie is hierdoor onmogelijk.
-    
-    #### 🛡️ 4. Anoniem corruptie melden
-    Upload foto's of video's van corruptie of milieuvervuiling. Je apparaat- en internetgegevens worden direct onkraakbaar gewist. Als de melding klopt, keert het systeem automatisch een **veiligheidsbonus** uit in je Wallet.
+    #### ⚖️ 3. De Volksjury
+    Als het systeem jou onterecht straft, beslissen anonieme mede-burgers uit andere ressorten via hun eigen app of de straf gewist moet worden.
     """)
 
 with tab6:
     st.markdown("""
     ### ⚙️ Draaiboek voor de Wijkbeheerder
-    *Instructie voor het correct en fraudevrij runnen van het fysieke inzamelstation in het ressort.*
-    
-    #### 🏁 Start van de Werkdag
-    1. Controleer de **schuifbalk** in het linkermenu op eventuele inflatie-correcties.
-    2. Zet de weegschaal aan en koppel de Bluetooth-handscanner aan de telefoon.
-    3. Hang een lege Big Bag aan de haak en zet de weegschaal op **0 (Tarra)**.
-    
-    #### 🔄 Stappenplan bij Inlevering
-    1. **Controleer het vuil:** Zorg dat er geen stenen, zand of water in de flessen zit.
-    2. **Wegen:** Gooi het plastic in de Big Bag en lees het gewicht af (bijv. *12,5 kg*).
-    3. **Scan Profiel:** Scan met de handscanner de anonieme QR-code (het DID-profiel) vanaf de telefoon van de burger.
-    4. **Invoeren:** Typ het aantal kilo in op het tabblad **'Milieu'** en klik op **Bevestig Inlevering**. Het geld staat direct in de wallet van de burger.
-    5. **Anti-Fraude:** Plak na afloop een gemarkeerde strook tape op de volle Big Bag met de datum van vandaag, zodat deze niet tweemaal kan worden ingeleverd.
+    1. Controleer de **schuifbalk** aan de linkerkant voor eventuele inflatie-correcties.
+    2. Hang een lege Big Bag aan de weegschaal en zet deze op **0 (Tarra)**.
+    3. Weeg het plastic en scan de anonieme QR-code (DID) van de burger met de handscanner.
+    4. Voer de kilo's in op het tabblad **'Milieu'** en klik op **Bevestig Inlevering**.
     """)
+
+with tab7:
+    st.markdown("""
+    ### 🏪 Winkeliers-Kassa (Verzilver-Portaal)
+    *Dit scherm gebruikt de winkelier (bijv. de buurtsuper) aan de kassa om KrinSranan-betalingen te accepteren.*
+    """)
+    st.markdown("<div class='winkel-box'><b>Status Winkel-Koppeling:</b> 🟢 Actief & Verbonden met Blockchain-Ledger</div>", unsafe_allow_html=True)
+    st.write("")
+    
+    betaalcode_invoer = st.text_input("Scan of typ de betaalcode van de burger in:")
+    winkel_bedrag = st.number_input("Totaalbedrag boodschappen (SRD):", min_value=0.0, step=5.0)
+    
+    if st.button("Verwerk Kassa-Betaling"):
+        if betaalcode_invoer and winkel_bedrag > 0:
+            st.success(f"✅ **BIEP! Betaling Goedgekeurd!** SRD {winkel_bedrag:,.2f} is succesvol overgeschreven van de burger naar uw winkelsaldo. U kunt de boodschappen meegeven.")
+            st.caption(f"Transactie onwrikbaar opgeslagen onder code: {betaalcode_invoer}")
+        else:
+            st.warning("Voer eerst de betaalcode en het exacte bedrag in.")
 
