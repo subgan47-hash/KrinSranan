@@ -5,7 +5,7 @@ from Krin_sranan_core_ import KrinSrananEngine
 # Pagina-instellingen voor mobiel (Nationale Surinaamse look)
 st.set_page_config(page_title="KrinSranan App", page_icon="🇸🇷", layout="centered")
 
-# Stijl aanpassen naar Groen, Wit en Goud (Gecorrigeerd zonder fouten)
+# Stijl aanpassen naar Groen, Wit en Goud
 st.markdown("""
     <style>
     .main { background-color: #FFFFFF; }
@@ -45,7 +45,8 @@ ressort = st.selectbox("📍 Selecteer uw Bestuursressort:", [
 # Actie-knoppen
 st.subheader("🟢 Acties & Inkomen")
 
-tab1, tab2, tab3, tab4 = st.tabs(["♻️ Milieu", "🛒 Markt", "⚖️ Volksjury", "🛡️ Klokkenluider"])
+# Vijf tabbladen, inclusief de nieuwe Handleiding
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["♻️ Milieu", "🛒 Markt", "⚖️ Volksjury", "🛡️ Klokkenluider", "📖 Handleiding"])
 
 with tab1:
     st.write("Verdien direct SRD door je resort schoon te houden.")
@@ -107,4 +108,22 @@ with tab4:
             st.success("🔒 Melding gecodeerd! Uw IP-adres en apparaat-ID zijn gewist. De AI start de controleprocedure.")
         else:
             st.warning("Voeg eerst bewijsmateriaal toe.")
+
+with tab5:
+    st.markdown("""
+    ### 📖 Hoe werkt deze app?
+    KrinSranan helpt Suriname schoner te maken en bestrijdt direct armoede, onafhankelijk van politieke partijen. Iedereen begint met **500 punten**.
+    
+    #### ♻️ 1. Geld verdienen met vuilnis
+    Verzamel plastic of zwerfvuil en breng het naar het inleverstation van jouw ressort. Vul het aantal kilo in en klik op **Bevestig Inlevering**. Je ontvangt direct **SRD 15,- per kilo** in je Wallet en je score stijgt!
+    
+    #### 🛒 2. Rekeningen betalen
+    Met het geld in je Wallet kun je direct en veilig je **EBS Stroom**, **SWM Water** of een **Basispakket** bij de supermarkt betalen via het tabblad 'Markt'.
+    
+    #### ⚖️ 3. De Volksjury (De Loophole)
+    Als het systeem jou onterecht een automatische straf oplegt, beslissen anonieme mede-burgers uit andere ressorten via hun app of de straf gewist moet worden. Corruptie is hierdoor onmogelijk.
+    
+    #### 🛡️ 4. Anoniem corruptie melden
+    Upload foto's of video's van corruptie of milieuvervuiling. Je apparaat- en internetgegevens worden direct onkraakbaar gewist. Als de melding klopt, keert het systeem automatisch een **veiligheidsbonus** uit in je Wallet.
+    """)
 
