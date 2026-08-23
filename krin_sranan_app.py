@@ -26,7 +26,6 @@ if "engine" not in st.session_state:
 engine = st.session_state.engine
 
 # --- BEHEERDERS INTERFACE (DYNAMISCHE TARIEVEN) ---
-# Dit zijmenu simuleert de onafhankelijke commissie die inflatie-correcties doorvoert
 with st.sidebar:
     st.markdown("<div class='admin-box'>⚙️ <b>Ressort Beheer</b><br><small>Alleen toegankelijk voor onafhankelijke wijkraden via cryptografische sleutel.</small></div>", unsafe_allow_html=True)
     st.write("")
@@ -54,15 +53,15 @@ ressort = st.selectbox("📍 Selecteer uw Bestuursressort:", [
 # Actie-knoppen
 st.subheader("🟢 Acties & Inkomen")
 
-# De 5 functionele tabbladen van KrinSranan
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["♻️ Milieu", "🛒 Markt", "⚖️ Volksjury", "🛡️ Klokkenluider", "📖 Handleiding"])
+# Nu zes functionele tabbladen, inclusief het Beheerders-Draaiboek
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["♻️ Milieu", "🛒 Markt", "⚖️ Volksjury", "🛡️ Klokkenluider", "📖 Handleiding", "⚙️ Beheerders-Draaiboek"])
 
 with tab1:
     st.write(f"Verdien direct SRD door je resort schoon te houden. Actueel tarief in **{ressort}**: SRD {tarief_plastic:,.2f} per kilo.")
     kilo = st.number_input("Aantal kilo ingeleverd plastic/vuil:", min_value=0.0, step=0.5)
     if st.button("Bevestig Inlevering"):
         if kilo > 0:
-            vergoeding = kilo * tarief_plastic  # Berekend op basis van de dynamische schuifbalk
+            vergoeding = kilo * tarief_plastic
             resultaat = engine.registreer_milieu_bijdrage(transactie_id=str(time.time()), kilo_plastic=kilo, srd_vergoeding=vergoeding)
             st.success(f"Geweldig! Succesvol verwerkt in {ressort}. Score stijgt! Ontvangen: SRD {vergoeding:,.2f}")
             time.sleep(1)
@@ -134,5 +133,23 @@ with tab5:
     
     #### 🛡️ 4. Anoniem corruptie melden
     Upload foto's of video's van corruptie of milieuvervuiling. Je apparaat- en internetgegevens worden direct onkraakbaar gewist. Als de melding klopt, keert het systeem automatisch een **veiligheidsbonus** uit in je Wallet.
+    """)
+
+with tab6:
+    st.markdown("""
+    ### ⚙️ Draaiboek voor de Wijkbeheerder
+    *Instructie voor het correct en fraudevrij runnen van het fysieke inzamelstation in het ressort.*
+    
+    #### 🏁 Start van de Werkdag
+    1. Controleer de **schuifbalk** in het linkermenu op eventuele inflatie-correcties.
+    2. Zet de weegschaal aan en koppel de Bluetooth-handscanner aan de telefoon.
+    3. Hang een lege Big Bag aan de haak en zet de weegschaal op **0 (Tarra)**.
+    
+    #### 🔄 Stappenplan bij Inlevering
+    1. **Controleer het vuil:** Zorg dat er geen stenen, zand of water in de flessen zit.
+    2. **Wegen:** Gooi het plastic in de Big Bag en lees het gewicht af (bijv. *12,5 kg*).
+    3. **Scan Profiel:** Scan met de handscanner de anonieme QR-code (het DID-profiel) vanaf de telefoon van de burger.
+    4. **Invoeren:** Typ het aantal kilo in op het tabblad **'Milieu'** en klik op **Bevestig Inlevering**. Het geld staat direct in de wallet van de burger.
+    5. **Anti-Fraude:** Plak na afloop een gemarkeerde strook tape op de volle Big Bag met de datum van vandaag, zodat deze niet tweemaal kan worden ingeleverd.
     """)
 
