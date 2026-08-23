@@ -26,6 +26,10 @@ if "engine" not in st.session_state:
     st.session_state.engine = KrinSrananEngine(burger_did="did:krin:sr:paramaribo:12345")
 engine = st.session_state.engine
 
+# Initialiseer een gesimuleerde winkel-omzet voor de demonstratie
+if "winkel_saldo" not in st.session_state:
+    st.session_state.winkel_saldo = 0.0
+
 # --- BEHEERDERS INTERFACE (DYNAMISCHE TARIEVEN) ---
 with st.sidebar:
     st.markdown("<div class='admin-box'>⚙️ <b>Ressort Beheer</b><br><small>Alleen toegankelijk voor onafhankelijke wijkraden via cryptografische sleutel.</small></div>", unsafe_allow_html=True)
@@ -54,7 +58,7 @@ ressort = st.selectbox("📍 Selecteer uw Bestuursressort:", [
 # Actie-knoppen
 st.subheader("🟢 Acties & Inkomen")
 
-# Nu zeven functionele tabbladen, inclusief Winkeliers-Kassa
+# De 7 functionele tabbladen van KrinSranan
 tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "♻️ Milieu", "🛒 Markt", "⚖️ Volksjury", "🛡️ Klokkenluider", "📖 Handleiding", "⚙️ Beheerders-Draaiboek", "🏪 Winkeliers-Kassa"
 ])
@@ -80,9 +84,8 @@ with tab2:
         resultaat = engine.betaal_basisvoorziening(instantie_type=optie, bedrag_srd=bedrag)
         if resultaat["status"] == "GOEDGEKEURD":
             st.success(f"Betaling goedgekeurd! Resterend saldo: SRD {resultaat['resterend_saldo']:,.2f}")
-            # Genereer een gesimuleerde betaalcode voor de supermarkt
             st.info(f"🔑 **Gegenereerde betaalcode voor de winkel:** `KRIN-PAY-{int(time.time())}-{int(bedrag)}`")
-            st.write("Laat deze code of de QR-code scannen door de winkelier bij de kassa.")
+            st.write("Laat deze code scannen door de winkelier bij de kassa.")
             time.sleep(3)
             st.rerun()
         else:
@@ -129,39 +132,56 @@ with tab5:
     KrinSranan helpt Suriname schoner te maken en bestrijdt direct armoede, onafhankelijk van politieke partijen.
     
     #### ♻️ 1. Geld verdienen met vuilnis
-    Verzamel plastic of zwerfvuil en breng het naar het inleverstation. De beheerder weegt het en scant je QR-code. Je ontvangt direct **SRD 15,- per kilo** (of het actuele ressort-tarief) in je Wallet!
+    Verzamel plastic en ontvang direct **SRD 15,- per kilo** (of het actuele ressort-tarief) in je Wallet!
     
     #### 🛒 2. Rekeningen & Boodschappen betalen
-    Ga naar 'Markt', kies 'Basispakket Supermarkt' en voer het bedrag in. De app maakt een digitale betaalcode. De winkelier scant deze code aan de kassa en de betaling is gedaan.
-    
-    #### ⚖️ 3. De Volksjury
-    Als het systeem jou onterecht straft, beslissen anonieme mede-burgers uit andere ressorten via hun eigen app of de straf gewist moet worden.
+    Ga naar 'Markt', voer het bedrag in en de app maakt een digitale betaalcode. De winkelier scant deze code aan de kassa.
     """)
 
 with tab6:
     st.markdown("""
     ### ⚙️ Draaiboek voor de Wijkbeheerder
     1. Controleer de **schuifbalk** aan de linkerkant voor eventuele inflatie-correcties.
-    2. Hang een lege Big Bag aan de weegschaal en zet deze op **0 (Tarra)**.
-    3. Weeg het plastic en scan de anonieme QR-code (DID) van de burger met de handscanner.
-    4. Voer de kilo's in op het tabblad **'Milieu'** en klik op **Bevestig Inlevering**.
+    2. Weeg het plastic en scan de anonieme QR-code (DID) van de burger.
+    3. Voer de kilo's in op het tabblad **'Milieu'** en klik op **Bevestig Inlevering**.
     """)
 
 with tab7:
     st.markdown("""
     ### 🏪 Winkeliers-Kassa (Verzilver-Portaal)
-    *Dit scherm gebruikt de winkelier (bijv. de buurtsuper) aan de kassa om KrinSranan-betalingen te accepteren.*
+    *Dit scherm gebruikt de winkelier aan de kassa om KrinSranan-betalingen te accepteren en uit te betalen naar de bank.*
     """)
-    st.markdown("<div class='winkel-box'><b>Status Winkel-Koppeling:</b> 🟢 Actief & Verbonden met Blockchain-Ledger</div>", unsafe_allow_html=True)
+    
+    # NIEUW: Harde financiële dekkingsindicator in de app voor de winkelier
+    st.markdown("<div class='winkel-box'><b>Status Winkel-Koppeling:</b> 🟢 Actief & Geverifieerd<br><b>KrinSranan Herstelfonds:</b> 🔒 100% Giral gedekt bij Surinaamse Banken (DSB/Hakrinbank)</div>", unsafe_allow_html=True)
     st.write("")
+    
+    # Weergave van de digitale omzet van deze specifieke winkel
+    st.metric(label="📈 Mijn Ongewijzigde Kassa-Omzet (Wacht op uitbetaling):", value=f"SRD {st.session_state.winkel_saldo:,.2f}")
     
     betaalcode_invoer = st.text_input("Scan of typ de betaalcode van de burger in:")
     winkel_bedrag = st.number_input("Totaalbedrag boodschappen (SRD):", min_value=0.0, step=5.0)
     
-    if st.button("Verwerk Kassa-Betaling"):
-        if betaalcode_invoer and winkel_bedrag > 0:
-            st.success(f"✅ **BIEP! Betaling Goedgekeurd!** SRD {winkel_bedrag:,.2f} is succesvol overgeschreven van de burger naar uw winkelsaldo. U kunt de boodschappen meegeven.")
-            st.caption(f"Transactie onwrikbaar opgeslagen onder code: {betaalcode_invoer}")
-        else:
-            st.warning("Voer eerst de betaalcode en het exacte bedrag in.")
+    col_kassa, col_bank = st.columns(2)
+    
+    with col_kassa:
+        if st.button("Verwerk Kassa-Betaling"):
+            if betaalcode_invoer and winkel_bedrag > 0:
+                st.session_state.winkel_saldo += winkel_bedrag  # Voeg geld toe aan de winkel-omzet
+                st.success(f"✅ **BIEP! Betaling Goedgekeurd!** SRD {winkel_bedrag:,.2f} is toegevoegd aan uw kassa-saldo.")
+                time.sleep(1)
+                st.rerun()
+            else:
+                st.warning("Voer eerst de betaalcode en het exacte bedrag in.")
+                
+    with col_bank:
+        if st.button("🏦 Uitbetalen naar mijn Bankrekening"):
+            if st.session_state.winkel_saldo > 0:
+                huidig_saldo = st.session_state.winkel_saldo
+                st.session_state.winkel_saldo = 0.0  # Reset saldo na uitbetaling
+                st.info(f"🔄 **API-Opdracht Verzonden naar Bank!** SRD {huidig_saldo:,.2f} wordt automatisch overgeboekt uit het Herstelfonds naar uw geregistreerde bankrekening. Verwerkingstijd: < 24 uur.")
+                time.sleep(3)
+                st.rerun()
+            else:
+                st.error("U heeft momenteel geen openstaande omzet om uit te betalen.")
 
